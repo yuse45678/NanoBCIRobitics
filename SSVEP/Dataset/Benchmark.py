@@ -68,6 +68,13 @@ class Benchmark:
     ]
 
     def get_freqs_and_phases(self, dataset_path):
+        """
+        获取数据集的频率和相位
+
+        -----------------------------------
+        :param dataset_path: 数据集路径
+        :return: 数据集的频率和相位
+        """
         import scipy.io as sio
         try:
             stim_para = sio.loadmat(dataset_path + '/Freq_Phase.mat')
@@ -81,6 +88,14 @@ class Benchmark:
             raise "读取数据出错！" + str(e)
 
     def load_single_subject_data(self, filePath, chans):
+        """
+        加载单个受试者数据
+
+        -----------------------------------
+        :param filePath: 文件路径
+        :param chans: 通道list
+        :return:原始数据
+        """
         import scipy.io as sio
         try:
             raw_mat = sio.loadmat(filePath)
@@ -96,6 +111,15 @@ class Benchmark:
             raise "读取数据出错！" + str(e)
 
     def load_subjects_data(self, subjectList, filePath, chans):
+        """
+        加载多组受试者数据
+
+        -----------------------------------
+        :param subjectList: 受试者集
+        :param filePath: 文件路径
+        :param chans: 通道list
+        :return: 原始数据集
+        """
         print('\n')
         print("/-/"*30)
         try:

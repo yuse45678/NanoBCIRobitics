@@ -17,7 +17,7 @@ from SSVEP.Classfication.utils import acc_compute, cal_itr
 from SSVEP.Dataset import FiltersUtils, cutting_data, Benchmark
 from SSVEP.Classfication import eCCA
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # 里面的代码只能作为脚本直接执行，import到其他脚本中不会被执行
     data_path = 'Benchmark'
     # 受试者ID
     subject_id = ['S' + '{:01d}'.format(idx_subject + 1) for idx_subject in range(1)]
@@ -43,6 +43,7 @@ if __name__ == '__main__':
 
     # 取1号受试者数据
     data = data['S1']
+
     data = cutting_data(data, t_delay, t_rection, t_task, fs)
     [nChannels, nTimes, nEvents, nTrials] = data.shape
     # 高通滤波
@@ -61,14 +62,14 @@ if __name__ == '__main__':
         res = test.predict()
         _, t = acc_compute(res)
         tmpacc += t
-        Acc = tmpacc / nTrials
-        acc_all.append(Acc)
-        itr = cal_itr(nEvents, t_task, Acc)
-        itr_all.append(itr)
-        print('-' * 50)
-        print('准确率为{:05f}'.format(Acc))
-        print('ITR=', itr)
-        print('*' * 50)
+    Acc = tmpacc / nTrials
+    acc_all.append(Acc)
+    itr = cal_itr(nEvents, t_task, Acc)
+    itr_all.append(itr)
+    print('-' * 50)
+    print('准确率为{:05f}'.format(Acc))
+    print('ITR=', itr)
+    print('*' * 50)
     print('+' * 50)
     print('平均准确率为{:05f}'.format(sum(acc_all) / len(acc_all)))
     print('平均ITR=', sum(itr_all) / len(itr_all))

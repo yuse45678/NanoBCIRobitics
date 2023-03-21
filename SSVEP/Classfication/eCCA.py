@@ -42,7 +42,7 @@ class eCCA(BasicCCA):
         :param n_harmonics: 正余弦模板谐波数量
         :param fs: 采样频率(float)，单位赫兹，默认是1kHz
         '''
-        super().__init__(data, fs)
+        super().__init__(data, fs)  # 调用父类的init方法
         [self.nChannels, self.nTimes, self.nEvents, self.nTrials] = self.data.shape
         self.TrainData = np.zeros((self.nChannels, self.nTimes, self.nEvents, self.nTrials - 1))
         self.TestData = np.zeros((self.nChannels, self.nTimes, self.nEvents, 1))
@@ -57,6 +57,12 @@ class eCCA(BasicCCA):
         pass
 
     def leave_one(self, selected_trial):
+        """
+        留一交叉验证
+
+        -----------------------------------
+        :param selected_trial: 被选作为测试数据的试验
+        """
         index = 0
         for i in range(self.nTrials):
             if selected_trial == i:
@@ -81,6 +87,14 @@ class eCCA(BasicCCA):
         return Pearson_Correlation_Coefficient
 
     def __cca_compute(self, X, Y):
+        """
+        标准CCA计算
+
+        -----------------------------------
+        :param X: 测试信号
+        :param Y: 模板信号
+        :return: 使得X和Y之间相关最大化的权重向量wx和wy
+        """
         # GEP
         Cxx = X @ X.T  # (Nc,Nc)
         Cyy = Y @ Y.T  # (2Nh,2Nh)
@@ -100,6 +114,15 @@ class eCCA(BasicCCA):
         return U, V
 
     def __ecca_compute(self, Xmean, Y, data):
+        """
+        eCCA计算
+
+        -----------------------------------
+        :param Xmean: 测试信号的均值
+        :param Y: 模板信号
+        :param data: 测试信号
+        :return: 加权相关系数（即组合成的最终特征值）
+        """
         # correlation coefficient from CCA process
         U1, V1 = self.__cca_compute(X=data, Y=Y)
         r1 = self.__corr_coef_1D(U1 @ data, V1 @ Y)[0, 0]
@@ -118,13 +141,12 @@ class eCCA(BasicCCA):
         return res
 
     def _combine_feature(self, X):
-        """Two-level feature extraction.
+        """
+        集成分类器，用于结合多个相关系数得到最终特征值
 
-        Args:
-            X (list of float): List of one-level features.
-
-        Returns:
-            tl_feature (float): Two-level feature.
+        -----------------------------------
+        :param X: List of one-level features.
+        :return: Two-level feature.
         """
         tl_feature = 0
         for feature in X:
@@ -134,12 +156,18 @@ class eCCA(BasicCCA):
 
     @timer
     def predict(self):
+        """
+        分类预测
+
+        -----------------------------------
+        :return:所有事件的加权相关系数
+        """
         # n_chans * n_samples * n_classes * n_trials
         train_data = np.transpose(self.TrainData, [2, 3, 0, 1])
         test_data = np.transpose(self.TestData, [2, 3, 0, 1])
         n_events = self.TrainData.shape[2]
         n_trial = self.TestData.shape[3]
-        res = np.zeros((n_events, n_trial, n_events))
+        res = np.zeros((n_events, n_trial, n_events))  # (真实事件标签，试验标签，预测事件标签）
         for event in range(n_events):
             for trial in range(n_trial):
                 temp_data = test_data[event, trial, ...]

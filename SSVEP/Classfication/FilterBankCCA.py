@@ -77,6 +77,12 @@ class FilterBankCCA(BasicCCA):
 
     @timer
     def predict(self, trial):
+        '''
+        yuce
+
+        :param trial:
+        :return:
+        '''
         bank_id = -1
         # 子带数量 真实事件标注  测试事件数
         # rho = np.zeros((self.nBank, self.nEvents, self.nEvents))

@@ -85,14 +85,12 @@ def sine_template(freq, phase, nPoints, nHarmonics, sfreq):
 
 
 def acc_compute(rou):
-    """Compute accuracy.
+    """
+    计算准确率
 
-    Args:
-        rou (ndarray): (nEvents(real), n_test, nEvents(models)). Decision coefficients.
-
-    Returns:
-        correct (list): (nEvents,). Correct trials for each event.
-        acc (float)
+    -----------------------------------
+    :param rou:所有事件加权相关系数的混淆矩阵(ndarray): (nEvents(real), n_test, nEvents(models))
+    :return:每个事件的正确分类数(list)，总体准确率(float)
     """
     n_events = rou.shape[0]
     n_test = rou.shape[1]
@@ -114,6 +112,15 @@ def initialization_based(res):
 
 
 def cal_itr(number, time, acc):
+    """
+    计算ITR
+
+    -----------------------------------
+    :param number:事件数量
+    :param time:秒(float)
+    :param acc:0-1(float)
+    :return:信息传输率
+    """
     """Compute information transfer rate.
 
     Args:
