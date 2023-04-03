@@ -74,6 +74,11 @@ class FilterBankCCA(BasicCCA):
             self.targetTemplateSet = self.filterUtil.ChebyshevI_BandpassFilters(data=self.targetTemplateSet,
                                                                                 wPass2D=wPass2D, wStop2D=wStop2D,
                                                                                 numFilter=numFilter, fs=fs)
+    def leave_one(self, selected_trial):
+        pass
+
+    def fit(self, X_train, y_train):
+        pass
 
     @timer
     def predict(self, trial):
@@ -84,8 +89,7 @@ class FilterBankCCA(BasicCCA):
         :return:
         '''
         bank_id = -1
-        # 子带数量 真实事件标注  测试事件数
-        # rho = np.zeros((self.nBank, self.nEvents, self.nEvents))
+        # 真实事件标注 预测事件标注
         res = np.zeros((self.nEvents, self.nEvents))
         if type(self.targetTemplateSet) == dict:
             for bank in self.filteredData:

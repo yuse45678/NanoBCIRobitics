@@ -1,22 +1,21 @@
 # !/usr/bin/env python3
 # _*_ coding:utf-8 _*_
 """
-@File     : example_benckmark_ecca.py
+@File     : example_benckmark_fbcca.py
 @Project  : NanoBCIRobitics
-@Time     : 2023/3/20 15:35
+@Time     : 2023/4/3 10:17
 @Author   : Li JiaYi
 @Software : PyCharm
 @License  : (C)Copyright 2020-2030
 @Last Modify Time      @Version     @Desciption
 --------------------       --------        -----------
-2023/3/20 15:35        1.0             None
-
+2023/4/3 10:17       1.0             None
 """
 import numpy as np
 
 from SSVEP.Classfication.utils import acc_compute, cal_itr
 from SSVEP.Dataset import FiltersUtils, cutting_data, Benchmark
-from SSVEP.Classfication import eCCA
+from SSVEP.Classfication import eCCA, FilterBankCCA
 
 if __name__ == '__main__':
     data_path = 'Benchmark'
@@ -48,9 +47,9 @@ if __name__ == '__main__':
     [nChannels, nTimes, nEvents, nTrials] = data.shape
     # 高通滤波
     filtersUtils = FiltersUtils()
-    filtered_data = filtersUtils.ChebyshevI_BandpassFilters(data, w_pass_2d, w_stop_2d, filter_nums, fs)
-    # test=FilterBankCCA(data=data,wPass2D=w_pass_2d,wStop2D=w_stop_2d,freqsList=freqsList,numFilter=5,nHarmonics=8,fs=fs)
-    test = eCCA(data=filtered_data['bank1'], n_harmonics=n_harmonics, fs=fs, freqsList=freqsList)
+    # filtered_data = filtersUtils.ChebyshevI_BandpassFilters(data, w_pass_2d, w_stop_2d, filter_nums, fs)
+    test=FilterBankCCA(data=data,wPass2D=w_pass_2d,wStop2D=w_stop_2d,freqsList=freqsList,numFilter=5,nHarmonics=8,fs=fs)
+    # test = eCCA(data=filtered_data['bank1'], n_harmonics=n_harmonics, fs=fs, freqsList=freqsList)
 
     acc_all = []
     itr_all = []
@@ -59,7 +58,7 @@ if __name__ == '__main__':
         print('-' * 50)
         print('正在测试第{}个试验数据'.format(trial + 1))
         test.leave_one(trial)
-        res = test.predict()
+        res = test.predict(trial)
         _, t = acc_compute(res)
         tmpacc += t
     Acc = tmpacc / nTrials

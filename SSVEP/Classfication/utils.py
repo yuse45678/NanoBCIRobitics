@@ -89,19 +89,17 @@ def acc_compute(rou):
     计算准确率
 
     -----------------------------------
-    :param rou:所有事件加权相关系数的混淆矩阵(ndarray): (nEvents(real), n_test, nEvents(models))
+    :param rou:所有事件加权相关系数的混淆矩阵(ndarray): (nEvents(real),  nEvents(models))
     :return:每个事件的正确分类数(list)，总体准确率(float)
     """
     n_events = rou.shape[0]
-    n_test = rou.shape[1]
     correct = []
     for netr in range(n_events):
         temp = 0
-        for nte in range(n_test):
-            if np.argmax(rou[netr, nte, :]) == netr:
-                temp += 1
+        if np.argmax(rou[netr, :]) == netr:
+            temp += 1
         correct.append(temp)
-    return correct, np.sum(correct) / (n_test * n_events)
+    return correct, np.sum(correct) / (n_events)
 
 
 def initialization_based(res):
