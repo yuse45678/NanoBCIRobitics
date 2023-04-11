@@ -2,15 +2,15 @@
 # _*_ coding:utf-8 _*_
 """
 @File     : __init__.py.py
-@Project  : NanoBCIRobitics
-@Time     : 2023/3/19 23:33
+@Project  : example_benckmark_ecca.py
+@Time     : 2023/4/5 18:04
 @Author   : Li JiaYi
 @Software : PyCharm
 @License  : (C)Copyright 2020-2030
 @Last Modify Time      @Version     @Desciption
 --------------------       --------        -----------
-2023/3/19 23:33        1.0             None
+2023/4/5 18:04        1.0             None
 """
-from .RaspberryPi import LED
+
 if __name__ == '__main__':
     pass

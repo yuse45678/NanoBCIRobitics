@@ -40,7 +40,7 @@ def loop_remote(trial_timer, LED_List, trial_duration, evoke_duration):
 
 
 class LED:
-
+    BLACK = [0, 0, 0]
     RED = [255, 20, 5]
     GREEN = [0, 200, 0]
     BLUE = [0, 0, 255]
@@ -67,6 +67,8 @@ class LED:
         self.counter = 0
         self.PWMs = []
         for pin in pins:
+            GPIO.setmode(GPIO.BOARD)
+            GPIO.setwarnings(False)
             GPIO.setup(pin, GPIO.OUT)
             pwm = GPIO.PWM(pin, self.frequency)
             pwm.start(0)
