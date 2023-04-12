@@ -68,11 +68,11 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
         self.evoke_duration = 3
         self.trial_duration = 4
         self.Led1 = LED([12, 18, 16], "上Led").set_color(LED.BLACK).set_evoke_fre(11.1)
-        self.Led2 = LED([22, 36, 32], "左Led").set_color(LED.BLACK).set_evoke_fre(40)
-        self.Led3 = LED([35, 38, 37], "右Led").set_color(LED.BLACK).set_evoke_fre(50)
-        self.Led4 = LED([11, 15, 13], "下Led").set_color(LED.BLACK).set_evoke_fre(60)
+        self.Led2 = LED([22, 36, 32], "左Led").set_color(LED.BLACK).set_evoke_fre(12.4)
+        self.Led3 = LED([35, 38, 37], "右Led").set_color(LED.BLACK).set_evoke_fre(9.8)
+        self.Led4 = LED([11, 15, 13], "下Led").set_color(LED.BLACK).set_evoke_fre(13.7)
         self.printf(self.offlineTextBrowser, "当前系统已加载完成")
-        self.IPtextBrowser.insertPlainText(get_host_ip())
+        self.IPtextBrowser.setText(get_host_ip())
         self.get_serial_info()
 
         self.setWindowIcon(QIcon('文件.png'))
@@ -83,9 +83,10 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
         # 处理新连接
         client_socket = self.server.nextPendingConnection()
         client_socket.readyRead.connect(self.handle_ready_read)
+        client_socket.write("客户机{}已连接树莓派{}".format(client_socket.peerAddress().toString(),self.IPtextBrowser.text()).encode())
         self.printf(self.offlineTextBrowser, "客户机{}正在连接.....".format(client_socket.peerAddress().toString()))
-        self.printf(self.offlineTextBrowser, "客户机{}已连接".format(client_socket.peerAddress().toString()))
-        self.ClientIPtextBrowser.append(client_socket.peerAddress().toString())
+        self.printf(self.offlineTextBrowser, "客户机{}已连接树莓派{}".format(client_socket.peerAddress().toString(),self.IPtextBrowser.text()))
+        self.ClientIPtextBrowser.setText(client_socket.peerAddress().toString())
         self.triggerbox = TriggerBox("/dev/" + self.comComboBox.currentText())
         # 将客户端socket添加到列表中
         self.clients.append(client_socket)
@@ -196,7 +197,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                         self.printf(self.offlineTextBrowser,
                                     '当前{}闪烁频率为{}Hz'.format(self.Led4.name, self.Led4.evoke_fre))
                         self.printf(self.offlineTextBrowser, "**" * 50)
-
+                    client_socket.write(self.offlineTextBrowser.toPlainText().encode())
                 except Exception as e:
                     self.printf(self.offlineTextBrowser, "发生错误{}".format(e))
 

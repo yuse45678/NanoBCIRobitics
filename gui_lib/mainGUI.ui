@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
-    <height>554</height>
+    <width>652</width>
+    <height>664</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,148 +15,212 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="0">
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetFixedSize</enum>
+    <item row="2" column="0">
+     <widget class="QLabel" name="ServiceIPlabel">
+      <property name="text">
+       <string>树莓派IP地址</string>
       </property>
-      <item row="1" column="0">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetFixedSize</enum>
-        </property>
-        <item>
+     </widget>
+    </item>
+    <item row="0" column="3" rowspan="3">
+     <widget class="QPushButton" name="ConnectButton">
+      <property name="text">
+       <string>连接树莓派</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QLineEdit" name="ClientIPPortlineEdit">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>8000</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="2">
+     <widget class="QLineEdit" name="ClientIPlineEdit"/>
+    </item>
+    <item row="3" column="0" colspan="4">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="OfflineWidget">
+       <attribute name="title">
+        <string>离线实验</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="0">
+         <widget class="QTextBrowser" name="textBrowser"/>
+        </item>
+        <item row="0" column="0">
          <widget class="QGroupBox" name="groupBox">
           <property name="title">
-           <string>系统信息</string>
+           <string>参数设置</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_4">
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="LED1lineEdit">
+             <property name="text">
+              <string>11.1</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>LED4频率</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="LED2lineEdit">
+             <property name="text">
+              <string>12.4</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>视觉刺激时间</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>试验时间</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0">
-            <layout class="QVBoxLayout" name="verticalLayout_3">
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>本机IP地址</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QTextBrowser" name="IPtextBrowser">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>试验数</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>LED1频率</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>LED2频率</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>LED3频率</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLineEdit" name="LED4lineEdit">
+             <property name="text">
+              <string>13.7</string>
+             </property>
+            </widget>
            </item>
            <item row="0" column="1">
-            <layout class="QVBoxLayout" name="verticalLayout_4">
-             <item>
-              <widget class="QLabel" name="label_2">
-               <property name="text">
-                <string>多参数同步器端口</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="comComboBox">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton">
-               <property name="text">
-                <string>测试</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QLineEdit" name="TrialslineEdit">
+             <property name="text">
+              <string>10</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="EVTimelineEdit">
+             <property name="text">
+              <string>4</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="TrialTimelineEdit">
+             <property name="text">
+              <string>5</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4" rowspan="2" colspan="2">
+            <widget class="QPushButton" name="SettingButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>设置参数</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="LED3lineEdit">
+             <property name="text">
+              <string>9.8</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7" rowspan="3">
+            <widget class="QPushButton" name="OfflineBeginButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>开始实验</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
         </item>
        </layout>
-      </item>
-      <item row="0" column="0">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetFixedSize</enum>
-        </property>
-        <item>
-         <widget class="QTabWidget" name="offlineWidget">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="offline">
-           <attribute name="title">
-            <string>OffLine</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0">
-             <layout class="QVBoxLayout" name="verticalLayout_5">
-              <item>
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>实验信息</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QTextBrowser" name="offlineTextBrowser"/>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0" colspan="2">
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>当前实验进度</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QProgressBar" name="offlineProgressBar">
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="offlineBeginButton">
-              <property name="text">
-               <string>开始实验</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_2">
-           <attribute name="title">
-            <string>OnLine</string>
-           </attribute>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
+      </widget>
+      <widget class="QWidget" name="OnLineWidget">
+       <attribute name="title">
+        <string>在线实验</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="CheckWidget">
+       <attribute name="title">
+        <string>测试</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="ServiceIPlineEdit">
+      <property name="text">
+       <string>192.168.10.101</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="ClientIPlabel">
+      <property name="text">
+       <string>本机IP地址</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -165,7 +229,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>672</width>
+     <width>652</width>
      <height>26</height>
     </rect>
    </property>
@@ -178,14 +242,6 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <tabstops>
-  <tabstop>offlineWidget</tabstop>
-  <tabstop>offlineBeginButton</tabstop>
-  <tabstop>comComboBox</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>IPtextBrowser</tabstop>
-  <tabstop>offlineTextBrowser</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>
