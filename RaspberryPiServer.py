@@ -83,11 +83,15 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
         # 处理新连接
         client_socket = self.server.nextPendingConnection()
         client_socket.readyRead.connect(self.handle_ready_read)
-        client_socket.write("客户机{}已连接树莓派{}".format(client_socket.peerAddress().toString(),self.IPtextBrowser.text()).encode())
+
         self.printf(self.offlineTextBrowser, "客户机{}正在连接.....".format(client_socket.peerAddress().toString()))
-        self.printf(self.offlineTextBrowser, "客户机{}已连接树莓派{}".format(client_socket.peerAddress().toString(),self.IPtextBrowser.text()))
+        self.printf(self.offlineTextBrowser,
+                    "客户机{}已连接树莓派{}".format(client_socket.peerAddress().toString(), self.IPtextBrowser.text()))
         self.ClientIPtextBrowser.setText(client_socket.peerAddress().toString())
         self.triggerbox = TriggerBox("/dev/" + self.comComboBox.currentText())
+        client_socket.write(
+            ("客户机{}已连接树莓派{}".format(client_socket.peerAddress().toString(),
+                                             self.IPtextBrowser.text())).encode())
         # 将客户端socket添加到列表中
         self.clients.append(client_socket)
 
@@ -98,7 +102,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
             if client_socket.bytesAvailable() > 0:
                 message = client_socket.readAll().data().decode()
                 # self.printf(self.offlineTextBrowser,message)
-                res = message.split('.')
+                res = message.split('+')
                 self.printf(self.offlineTextBrowser, '服务端接收到{}指令'.format(message))
                 try:
                     if res[0] == 'BG':
@@ -118,7 +122,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                                 for seq in sequence:
                                     if seq == 1:
                                         self.printf(self.offlineTextBrowser, "请注视上面的LED灯，两秒后开始闪烁！")
-                                        self.sleep(2000)
+                                        self.sleep(1000)
                                         self.Led1.set_color(LED.GREEN)
                                         self.printf(self.offlineTextBrowser, "开始闪烁！")
                                         self.triggerbox.output_event_data(1)
@@ -126,7 +130,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                                         self.single_loop_remote(trial_timer, self.Led1)
                                     elif seq == 2:
                                         self.printf(self.offlineTextBrowser, "请注视下面的LED灯，两秒后开始闪烁！")
-                                        self.sleep(2000)
+                                        self.sleep(1000)
                                         self.printf(self.offlineTextBrowser, "开始闪烁！")
                                         self.Led4.set_color(LED.GREEN)
                                         self.triggerbox.output_event_data(2)
@@ -134,7 +138,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                                         self.single_loop_remote(trial_timer, self.Led4)
                                     elif seq == 3:
                                         self.printf(self.offlineTextBrowser, "请注视左边的LED灯，两秒后开始闪烁！")
-                                        self.sleep(2000)
+                                        self.sleep(1000)
                                         self.printf(self.offlineTextBrowser, "开始闪烁！")
                                         self.Led2.set_color(LED.GREEN)
                                         self.triggerbox.output_event_data(3)
@@ -142,13 +146,15 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                                         self.single_loop_remote(trial_timer, self.Led2)
                                     elif seq == 4:
                                         self.printf(self.offlineTextBrowser, "请注视右边的LED灯，两秒后开始闪烁！")
-                                        self.sleep(2000)
+                                        self.sleep(1000)
                                         self.printf(self.offlineTextBrowser, "开始闪烁！")
                                         self.Led3.set_color(LED.GREEN)
                                         self.triggerbox.output_event_data(4)
                                         trial_timer = time.time()
                                         self.single_loop_remote(trial_timer, self.Led3)
                                 self.printf(self.offlineTextBrowser, "当前试次实验已完成！！")
+                                message = "当前第{}次实验已完成".format(self.count)
+                                client_socket.write(message.encode())
                                 self.printf(self.offlineTextBrowser, "--" * 50)
                                 self.offlineProgressBar.setValue(int(self.count / self.trials * 100))
                             else:
@@ -156,48 +162,54 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                                 self.count = 0
                     elif res[0] == 'SET':
                         if res[1] == 'TRIAL':
-
                             self.trials = int(res[2])
-                            self.printf(self.offlineTextBrowser, '当前最大试验数为{}'.format(self.trials))
+                            message = '当前最大试验数为{}'.format(self.trials)
+                            client_socket.write(message.encode())
+                            self.printf(self.offlineTextBrowser, message)
+                            self.count = 0
                             self.offlineProgressBar.setValue(int(self.count / self.trials * 100))
                         elif res[1] == 'EV_DU':
-                            self.evoke_duration = int(res[2])
-                            self.printf(self.offlineTextBrowser, '当前视觉刺激时间为{}'.format(self.evoke_duration))
+                            self.evoke_duration = float(res[2])
+                            message = '当前视觉刺激时间为{}s'.format(self.evoke_duration)
+                            client_socket.write(message.encode())
+                            self.printf(self.offlineTextBrowser, message)
                         elif res[1] == 'TR_DU':
-                            self.trial_duration = int(res[2])
-                            self.printf(self.offlineTextBrowser, '当前试验时间为{}'.format(self.trial_duration))
-                        elif res[2] == 'LED':
-                            if res[3] == '1':
-                                self.Led1.set_evoke_fre(int(res[4]))
-                                self.printf(self.offlineTextBrowser,
-                                            '当前{}闪烁频率为{}'.format(self.Led1.name, self.Led1.evoke_fre))
-                            if res[3] == '2':
-                                self.Led2.set_evoke_fre(int(res[4]))
-                                self.printf(self.offlineTextBrowser,
-                                            '当前{}闪烁频率为{}'.format(self.Led2.name, self.Led2.evoke_fre))
-                            if res[3] == '3':
-                                self.Led3.set_evoke_fre(int(res[4]))
-                                self.printf(self.offlineTextBrowser,
-                                            '当前{}闪烁频率为{}'.format(self.Led3.name, self.Led3.evoke_fre))
-                            if res[3] == '4':
-                                self.Led4.set_evoke_fre(int(res[4]))
-                                self.printf(self.offlineTextBrowser,
-                                            '当前{}闪烁频率为{}'.format(self.Led4.name, self.Led4.evoke_fre))
-                    if res[0]=='LIST':
-                        self.printf(self.offlineTextBrowser, "**" * 50)
-                        self.printf(self.offlineTextBrowser, '当前最大试验数为{}'.format(self.trials))
-                        self.printf(self.offlineTextBrowser, '当前视觉刺激时间为{}s'.format(self.evoke_duration))
-                        self.printf(self.offlineTextBrowser, '当前试验时间为{}s'.format(self.trial_duration))
-                        self.printf(self.offlineTextBrowser,
-                                    '当前{}闪烁频率为{}Hz'.format(self.Led1.name, self.Led1.evoke_fre))
-                        self.printf(self.offlineTextBrowser,
-                                    '当前{}闪烁频率为{}Hz'.format(self.Led2.name, self.Led2.evoke_fre))
-                        self.printf(self.offlineTextBrowser,
-                                    '当前{}闪烁频率为{}Hz'.format(self.Led3.name, self.Led3.evoke_fre))
-                        self.printf(self.offlineTextBrowser,
-                                    '当前{}闪烁频率为{}Hz'.format(self.Led4.name, self.Led4.evoke_fre))
-                        self.printf(self.offlineTextBrowser, "**" * 50)
-                    client_socket.write(self.offlineTextBrowser.toPlainText().encode())
+                            self.trial_duration = float(res[2])
+                            message = '当前试验时间为{}s'.format(self.trial_duration)
+                            client_socket.write(message.encode())
+                            self.printf(self.offlineTextBrowser, message)
+                        elif res[1] == 'LED':
+                            if res[2] == '1':
+                                self.Led1.set_evoke_fre(float(res[3]))
+                                message = '当前{}闪烁频率为{}Hz'.format(self.Led1.name, self.Led1.evoke_fre)
+                                client_socket.write(message.encode())
+                                self.printf(self.offlineTextBrowser, message)
+                            if res[2] == '2':
+                                self.Led2.set_evoke_fre(float(res[3]))
+                                message = '当前{}闪烁频率为{}Hz'.format(self.Led2.name, self.Led2.evoke_fre)
+                                client_socket.write(message.encode())
+                                self.printf(self.offlineTextBrowser, message)
+                            if res[2] == '3':
+                                self.Led3.set_evoke_fre(float(res[3]))
+                                message = '当前{}闪烁频率为{}Hz'.format(self.Led3.name, self.Led3.evoke_fre)
+                                client_socket.write(message.encode())
+                                self.printf(self.offlineTextBrowser, message)
+                            if res[2] == '4':
+                                self.Led4.set_evoke_fre(float(res[3]))
+                                message = '当前{}闪烁频率为{}Hz'.format(self.Led4.name, self.Led4.evoke_fre)
+                                client_socket.write(message.encode())
+                                self.printf(self.offlineTextBrowser, message)
+                    if res[0] == 'LIST':
+                        message = "**" * 50
+                        message = message + '\n当前最大试验数为{}'.format(self.trials)
+                        message = message + '\n当前试验时间为{}s'.format(self.trial_duration)
+                        message = message + '\n当前视觉刺激时间为{}s'.format(self.evoke_duration)
+                        message = message + '\n当前{}闪烁频率为{}Hz'.format(self.Led1.name, self.Led1.evoke_fre)
+                        message = message + '\n当前{}闪烁频率为{}Hz'.format(self.Led2.name, self.Led2.evoke_fre)
+                        message = message + '\n当前{}闪烁频率为{}Hz'.format(self.Led3.name, self.Led3.evoke_fre)
+                        message = message + '\n当前{}闪烁频率为{}Hz'.format(self.Led4.name, self.Led4.evoke_fre)
+                        self.printf(self.offlineTextBrowser, message)
+                    # client_socket.write(self.offlineTextBrowser.toPlainText().encode())
                 except Exception as e:
                     self.printf(self.offlineTextBrowser, "发生错误{}".format(e))
 
