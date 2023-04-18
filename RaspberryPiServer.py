@@ -74,7 +74,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
         self.printf(self.offlineTextBrowser, "当前系统已加载完成")
         self.IPtextBrowser.setText(get_host_ip())
         self.get_serial_info()
-
+        self.TipstextBrowser.setFontPointSize(128)
         self.setWindowIcon(QIcon('文件.png'))
         # self.connectButton.clicked.connect()
 
@@ -107,9 +107,43 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                 try:
                     if res[0] == 'BG':
                         if res[1] == 'ONLINE':
-                            self.config_color([LED.GREEN, LED.GREEN, LED.GREEN, LED.GREEN])
-                            trial_timer = time.time()
-                            self.loop_remote(trial_timer)
+                            self.printf(self.offlineTextBrowser, '开始在线实验..')
+                            self.evoke_duration = 2
+                            self.trial_duration = 3
+                            colors = [LED.GREEN, LED.GREEN, LED.GREEN, LED.GREEN]
+                            while (True):
+                                message=''
+                                resultColors = [LED.BLACK, LED.BLACK, LED.BLACK, LED.BLACK]
+                                for led in [self.Led1,self.Led2,self.Led3,self.Led4]:
+                                    led.turn_off()
+                                self.config_color(colors)
+                                trial_timer = time.time()
+                                self.loop_remote(trial_timer)
+                                if client_socket.waitForReadyRead(1500):
+                                    message = client_socket.readAll().data().decode()
+                                if message is not '':
+                                    if message == 'RE.ED':
+                                        self.printf(self.offlineTextBrowser, '结束实验！')
+                                        break
+                                    if message == 'RE.UP':
+                                        resultColors[0] = LED.YELLOW
+                                        self.config_color(resultColors)
+                                        self.Led1.turn_on()
+                                    elif message == 'RE.DOWM':
+                                        resultColors[3] = LED.YELLOW
+                                        self.config_color(resultColors)
+                                        self.Led4.turn_on()
+                                    elif message == 'RE.LEFT':
+                                        resultColors[1] = LED.YELLOW
+                                        self.config_color(resultColors)
+                                        self.Led2.turn_on()
+                                    elif message == 'RE.RIGHT':
+                                        resultColors[2] = LED.YELLOW
+                                        self.config_color(resultColors)
+                                        self.Led3.turn_on()
+                                    else:
+                                        self.config_color(resultColors)
+                                self.sleep(500)
                         elif res[1] == 'OFFLINE':
                             self.printf(self.offlineTextBrowser, "--" * 50)
                             self.printf(self.offlineTextBrowser, '开始第{}次离线实验'.format(self.count + 1))
@@ -122,6 +156,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                                 for seq in sequence:
                                     if seq == 1:
                                         self.printf(self.offlineTextBrowser, "请注视上面的LED灯，两秒后开始闪烁！")
+                                        self.TipstextBrowser.setText("上")
                                         self.sleep(1000)
                                         self.Led1.set_color(LED.GREEN)
                                         self.printf(self.offlineTextBrowser, "开始闪烁！")
@@ -130,6 +165,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                                         self.single_loop_remote(trial_timer, self.Led1)
                                     elif seq == 2:
                                         self.printf(self.offlineTextBrowser, "请注视下面的LED灯，两秒后开始闪烁！")
+                                        self.TipstextBrowser.setText("下")
                                         self.sleep(1000)
                                         self.printf(self.offlineTextBrowser, "开始闪烁！")
                                         self.Led4.set_color(LED.GREEN)
@@ -138,6 +174,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                                         self.single_loop_remote(trial_timer, self.Led4)
                                     elif seq == 3:
                                         self.printf(self.offlineTextBrowser, "请注视左边的LED灯，两秒后开始闪烁！")
+                                        self.TipstextBrowser.setText("左")
                                         self.sleep(1000)
                                         self.printf(self.offlineTextBrowser, "开始闪烁！")
                                         self.Led2.set_color(LED.GREEN)
@@ -146,6 +183,7 @@ class ServerWindow(QMainWindow, Ui_MainWindow):
                                         self.single_loop_remote(trial_timer, self.Led2)
                                     elif seq == 4:
                                         self.printf(self.offlineTextBrowser, "请注视右边的LED灯，两秒后开始闪烁！")
+                                        self.TipstextBrowser.setText("右")
                                         self.sleep(1000)
                                         self.printf(self.offlineTextBrowser, "开始闪烁！")
                                         self.Led3.set_color(LED.GREEN)

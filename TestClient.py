@@ -25,7 +25,7 @@ class ClientWindow(QDialog):
         self.socket = QTcpSocket(self)
 
         # 连接服务器
-        self.socket.connectToHost('192.168.10.101', 8000)
+        self.socket.connectToHost('192.168.10.128', 8000)
 
         # 创建界面
         self.create_ui()

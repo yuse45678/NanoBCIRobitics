@@ -12,35 +12,15 @@
 2023/4/12 22:08        1.0             None
 """
 import sys
-import random
-import time
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import QEventLoop, QTimer, pyqtSignal, QObject, QThread
-from PyQt5.QtNetwork import QTcpServer, QTcpSocket
+from PyQt5.QtCore import QEventLoop, QTimer
+from PyQt5.QtNetwork import QTcpSocket
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QMessageBox
 from gui_lib.mainGUI import Ui_MainWindow
 from gui_lib.GUI_utils import get_host_ip
-
-
-class WorkerThread(QThread):
-    finished = pyqtSignal()
-    progress = pyqtSignal(str)
-
-    def __init__(self, socket, trials):
-        super().__init__()
-        self.socket = socket
-        self.trials = trials
-
-    def run(self) -> None:
-        for i in range(self.trials):
-            self.socket.write("BG+OFFLINE".encode())
-            self.sleep(2000)
-            while not self.socket.waitForReadyRead():
-                pass
-            self.progress.emit(self.socket.readAll().data().decode())
-        self.finished.emit()
+from neuracle_lib.dataServer import DataServerThread
 
 
 class ClientWindow(QMainWindow, Ui_MainWindow):
@@ -58,6 +38,43 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
         self.ConnectButton.clicked.connect(self.ConnectButtonClicked)
         self.SettingButton.clicked.connect(self.SettingButtonClicked)
         self.OfflineBeginButton.clicked.connect(self.OfflineBeginButtionClicked)
+        self.LEDSettingButton.clicked.connect(self.onlineSettingButtonClicked)
+        self.NeuracleSettingpushButton.clicked.connect(self.neuracleButtonClicked)
+        self.device = dict()
+        self.start=False
+    def onlineStartButtonClicked(self):
+        try:
+            self.start=not self.start
+            if self.start:
+                time_buffer = 3  # second
+                target_device=self.device
+                thread_data_server = DataServerThread(device=target_device['device_name'], n_chan=target_device['n_chan'],
+                                                      srate=target_device['srate'], t_buffer=time_buffer)
+                notconnect = thread_data_server.connect(hostname=target_device['hostname'], port=target_device['port'])
+                if notconnect:
+                    raise TypeError("Can't connect recorder, Please open the hostport ")
+                else:
+                    # 启动线程
+                    thread_data_server.Daemon = True
+                    thread_data_server.start()
+                    print('Data server connected')
+                    N, flagstop = 0, False
+                while not flagstop:  # get data in one second step
+                    nUpdate = thread_data_server.GetDataLenCount()
+                    if nUpdate > (1 * target_device['srate'] - 1):
+                        N += 1
+                        data = thread_data_server.GetBufferData()
+                        thread_data_server.ResetDataLenCount()
+                        print(data[0, :])
+
+                    if not self.start:
+                        flagstop = True
+            else:
+                pass
+
+        except Exception as e:
+            QMessageBox.warning(self, '注意', "发生错误{}".format(e),
+                                QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
 
     def ConnectButtonClicked(self):
         try:
@@ -66,10 +83,17 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
             if self.socket.waitForReadyRead(2000):
                 self.printf(self.textBrowser, self.socket.readAll().data().decode())
                 self.ConnectButton.setEnabled(False)
+                self.groupBox.setEnabled(True)
+                self.groupBox_2.setEnabled(True)
+                self.groupBox_3.setEnabled(True)
             else:
-                self.printf(self.textBrowser, "连接失败，请确认IP地址是否正确")
+                QMessageBox.warning(self, '注意', "连接失败，请确认IP地址是否正确",
+                                    QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
+                # self.printf(self.textBrowser, "连接失败，请确认IP地址是否正确")
         except Exception as e:
-            self.printf(self.textBrowser, "发生错误{}".format(e))
+            QMessageBox.warning(self, '注意', "发生错误{}".format(e),
+                                QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
+            # self.printf(self.textBrowser, "发生错误{}".format(e))
 
     def SettingButtonClicked(self):
         try:
@@ -99,7 +123,30 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
             self.setOfflineButtonState(False)
 
         except Exception as e:
-            self.printf(self.textBrowser, "发生错误{}".format(e))
+            QMessageBox.warning(self, '注意', "发生错误{}".format(e),
+                                QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
+
+    def onlineSettingButtonClicked(self):
+        try:
+            self.printf(self.textBrowser, "--" * 20)
+            self.socket.write(("SET+LED+1+" + self.LED1lineEdit_2.text()).encode())
+            if self.socket.waitForReadyRead():
+                self.printf(self.textBrowser, self.socket.readAll().data().decode())
+            self.socket.write(("SET+LED+2+" + self.LED2lineEdit_2.text()).encode())
+            if self.socket.waitForReadyRead():
+                self.printf(self.textBrowser, self.socket.readAll().data().decode())
+            self.socket.write(("SET+LED+3+" + self.LED3lineEdit_2.text()).encode())
+            if self.socket.waitForReadyRead():
+                self.printf(self.textBrowser, self.socket.readAll().data().decode())
+            self.socket.write(("SET+LED+4+" + self.LED4lineEdit_2.text()).encode())
+            if self.socket.waitForReadyRead():
+                self.printf(self.textBrowser, self.socket.readAll().data().decode())
+            self.printf(self.textBrowser, "--" * 20)
+            self.groupBox_2.setEnabled(False)
+
+        except Exception as e:
+            QMessageBox.warning(self, '注意', "发生错误{}".format(e),
+                                QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
 
     def setOfflineButtonState(self, state):
         self.SettingButton.setEnabled(state)
@@ -130,7 +177,29 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
                     self.printf(self.textBrowser, "服务器::" + self.socket.readAll().data().decode())
                 self.setOfflineButtonState(True)
         except Exception as e:
-            self.printf(self.textBrowser, "发生错误{}".format(e))
+            QMessageBox.warning(self, '注意', "发生错误{}".format(e),
+                                QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
+
+    def neuracleButtonClicked(self):
+        try:
+            chanlocs=[]
+            count=0
+            for item in self.ChanneltextEdit.text().split(','):
+                count=count+1
+                chanlocs.append(item)
+            if len(chanlocs)== self.ChannelspinBox.value():
+                self.device = dict(device_name='Neuracle', hostname=self.NeuraclelineEdit.text(),
+                                   port=int(self.NeuraclePortlineEdit.text()),
+                                   srate=self.SampleRateLineEdit.text(),
+                                   chanlocs=['Pz', 'POz', 'PO3', 'PO4', 'PO5', 'PO6', 'Oz', 'O1', 'O2', 'TRG'],
+                                   n_chan=self.ChannelspinBox.value())
+                self.NeuracleSettingpushButton.setEnabled(False)
+            else:
+                QMessageBox.warning(self, '注意', "发生错误:通道数和通道名称不一致！",
+                                    QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, '注意', "发生错误{}".format(e),
+                                QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
 
     def closeEvent(self, event):
         # 关闭socket连接
