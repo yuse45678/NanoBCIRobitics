@@ -40,12 +40,15 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
         self.OfflineBeginButton.clicked.connect(self.OfflineBeginButtionClicked)
         self.LEDSettingButton.clicked.connect(self.onlineSettingButtonClicked)
         self.NeuracleSettingpushButton.clicked.connect(self.neuracleButtonClicked)
+        self.OnlineBeginButton.clicked.connect(self.onlineStartButtonClicked)
         self.device = dict()
         self.start=False
     def onlineStartButtonClicked(self):
         try:
             self.start=not self.start
+
             if self.start:
+
                 time_buffer = 3  # second
                 target_device=self.device
                 thread_data_server = DataServerThread(device=target_device['device_name'], n_chan=target_device['n_chan'],
@@ -59,8 +62,12 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
                     thread_data_server.start()
                     print('Data server connected')
                     N, flagstop = 0, False
+                    self.socket.write("BG+ONLINE".encode())
+                    self.OnlineBeginButton.setEnabled(False)
+                    self.EndpushButton.setEnabled(True)
                 while not flagstop:  # get data in one second step
                     nUpdate = thread_data_server.GetDataLenCount()
+
                     if nUpdate > (1 * target_device['srate'] - 1):
                         N += 1
                         data = thread_data_server.GetBufferData()
@@ -68,6 +75,8 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
                         print(data[0, :])
 
                     if not self.start:
+                        self.OnlineBeginButton.setEnabled(False)
+                        self.EndpushButton.setEnabled(True)
                         flagstop = True
             else:
                 pass
@@ -145,6 +154,7 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
             self.groupBox_2.setEnabled(False)
 
         except Exception as e:
+            self.groupBox_2.setEnabled(True)
             QMessageBox.warning(self, '注意', "发生错误{}".format(e),
                                 QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
 
@@ -177,6 +187,8 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
                     self.printf(self.textBrowser, "服务器::" + self.socket.readAll().data().decode())
                 self.setOfflineButtonState(True)
         except Exception as e:
+            self.OfflineBeginButton.setEnabled(True)
+            self.setOfflineButtonState(False)
             QMessageBox.warning(self, '注意', "发生错误{}".format(e),
                                 QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
 
@@ -194,10 +206,13 @@ class ClientWindow(QMainWindow, Ui_MainWindow):
                                    chanlocs=['Pz', 'POz', 'PO3', 'PO4', 'PO5', 'PO6', 'Oz', 'O1', 'O2', 'TRG'],
                                    n_chan=self.ChannelspinBox.value())
                 self.NeuracleSettingpushButton.setEnabled(False)
+                self.OnlineBeginButton.setEnabled(True)
             else:
                 QMessageBox.warning(self, '注意', "发生错误:通道数和通道名称不一致！",
                                     QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
         except Exception as e:
+            self.NeuracleSettingpushButton.setEnabled(True)
+            self.OnlineBeginButton.setEnabled(False)
             QMessageBox.warning(self, '注意', "发生错误{}".format(e),
                                 QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Ok)
 
